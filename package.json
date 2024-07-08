@@ -10,7 +10,7 @@
         "build": "tsc",
         "dev": "ts-node ./src/index.ts"
     },
-    "author": "hmes98318",
+    "author": "xun0411",
     "license": "None",
     "dependencies": {
         "axios": "^1.6.8",
