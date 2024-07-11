@@ -117,6 +117,8 @@ export enum LoadType {
  * POST_FERT_UUID   :   穗後肥的肥料種類 uuid  
  */
 export enum MissingFK {
+    USER_ID = 99,
+
     CONTRACT_UUID = 100,
     FARMER_UUID = 101,
     LAND_UUID = 102,
