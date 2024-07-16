@@ -3,7 +3,7 @@
  */
 export const path = '/api/urldata/CreateOne';
 export const method = 'POST';
-export const loginRequired = true;
+export const loginRequired = false;
 export const allowPermissions = [];
 
 import { rangeCheck } from '../../../util/rangeCheck.js';
@@ -16,13 +16,13 @@ import type { ApiConfig } from '../../../@types/Config.types.js';
 import type { ResultData } from '../../../@types/Express.types.js';
 
 
-interface UrlData{
+interface UrlData {
     id?: number;
     user_id: number;                    //引用使用者的id    (INT)
 
-    key: string;                        //短網址            string(10)
+    short_url: string;                        //短網址            string(10)
     long_url: string;                   //原始網址          string(1000)
-    created_at: string;                 //添加時間          Date
+    //created_at: string;                 //添加時間          Date
     expire_date: number;                //過期時間(分)      (INT_UNSIGNED)
     require_password: number;           //是否需要密碼      (Y/N) [0, 1]
     password: string | null;            //密碼              string(128)
@@ -37,15 +37,14 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
     let result: object[] = [];
 
     // 檢查請求參數型別是否正確
-    if(
+    if (
         (typeof (req.body.user_id) != 'number' || !rangeCheck.int(req.body.user_id)) ||
 
-        (typeof (req.body.key) != 'string' || !rangeCheck.string_length(req.body.key, 10)) ||
+        (typeof (req.body.short_url) != 'string' || !rangeCheck.string_length(req.body.short_url, 10)) ||
         (typeof (req.body.long_url) != 'string' || !rangeCheck.string_length(req.body.long_url, 1000)) ||
-        (typeof (req.body.created_at) != 'string' || !rangeCheck.date(req.body.created_at)) ||
         (typeof (req.body.expire_date) != 'number' || !rangeCheck.int_unsigned(req.body.expire_date)) ||
         (typeof (req.body.require_password) != 'number' || ![0, 1].includes(req.body.require_password)) ||
-        (req.body.password !== 'EMPTY_DATA' && (typeof (req.body.password) != 'number' || !rangeCheck.string_length(req.body.password, 128)))
+        (req.body.password !== 'EMPTY_DATA' && (typeof (req.body.password) != 'string' || !rangeCheck.string_length(req.body.password, 128)))
     ) {
         return {
             loadType: LoadType.PARAMETER_ERROR,
@@ -56,12 +55,11 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
     const newUrlData = {
         user_id: req.body.user_id,
 
-        key: req.body.key,
+        short_url: req.body.short_url,
         long_url: req.body.long_url,
-        created_at: req.body.created_at,
         expire_date: req.body.expire_date,
-        require_password: emptyDataConvert(req.body.require_password),
-        password: req.body.password
+        require_password: req.body.require_password,
+        password: req.body.require_password === 1 ? emptyDataConvert(req.body.password) : 'NULL'
     };
 
     try {
@@ -94,7 +92,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
             INSERT INTO UrlData (
             user_id,
             
-            key,
+            short_url,
             long_url,
             created_at,
             expire_date,
@@ -104,12 +102,12 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
             VALUES(
                 ${newUrlData.user_id},
 
-                ${newUrlData.key},
-                ${newUrlData.long_url},
-                ${newUrlData.created_at},
+                "${newUrlData.short_url}",
+                "${newUrlData.long_url}",
+                Now(),
                 ${newUrlData.expire_date},
                 ${newUrlData.require_password},
-                ${newUrlData.password},
+                ${newUrlData.password}
             );
         `;
         console.log('query', query);
@@ -122,7 +120,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
             data: []
         };
     }
-        
+
     return {
         loadType: LoadType.SUCCEED,
         data: []
