@@ -29,7 +29,7 @@ CREATE TABLE `User` (
 CREATE TABLE `UrlData` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
-  `key` VARCHAR(10) NOT NULL,
+  `short_url` VARCHAR(10) NOT NULL,
   `long_url` VARCHAR(1000) NOT NULL,
   `created_at` TIMESTAMP NOT NULL,
   `expire_date` INT UNSIGNED NOT NULL,
