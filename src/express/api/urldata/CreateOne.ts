@@ -14,15 +14,16 @@ import type { Request, Response } from 'express';
 import type { Database } from '../../../lib/database/Maria.js';
 import type { ApiConfig } from '../../../@types/Config.types.js';
 import type { ResultData } from '../../../@types/Express.types.js';
+import type { SessionManager } from '../../../lib/SessionManager/SessionManager.js';
 
 
 interface UrlData {
     id?: number;
     user_id: number;                    //引用使用者的id    (INT)
 
-    short_url: string;                        //短網址            string(10)
+    short_url: string;                  //短網址            string(10)
     long_url: string;                   //原始網址          string(1000)
-    //created_at: string;                 //添加時間          Date
+    //created_at: string;               //添加時間          Date
     expire_date: number;                //過期時間(分)      (INT_UNSIGNED)
     require_password: number;           //是否需要密碼      (Y/N) [0, 1]
     password: string | null;            //密碼              string(128)
@@ -33,7 +34,7 @@ interface UrlData {
  */
 
 
-export async function execute(req: Request, res: Response, config: ApiConfig, db: Database): Promise<ResultData> {
+export async function execute(req: Request, res: Response, config: ApiConfig, db: Database, sessionManager: SessionManager): Promise<ResultData> {
     let result: object[] = [];
 
     // 檢查請求參數型別是否正確
@@ -59,7 +60,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         long_url: req.body.long_url,
         expire_date: req.body.expire_date,
         require_password: req.body.require_password,
-        password: req.body.require_password === 1 ? emptyDataConvert(req.body.password) : 'NULL'
+        password: req.body.require_password === 1 ? sessionManager.auth.hashPassword(req.body.password) : `NULL`
     };
 
     try {
@@ -107,7 +108,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
                 Now(),
                 ${newUrlData.expire_date},
                 ${newUrlData.require_password},
-                ${newUrlData.password}
+                "${newUrlData.password}"
             );
         `;
         console.log('query', query);
