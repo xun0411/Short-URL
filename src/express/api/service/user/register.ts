@@ -1,19 +1,19 @@
 /**
  * 註冊一個新使用者
  */
-export const path = '/api/user/register';
+export const path = '/api/service/user/register';
 export const method = 'POST';
 export const loginRequired = false;
 export const allowPermissions = [];
 
-import { rangeCheck } from "../../../util/rangeCheck.js";
-import { LoadType, UserPermissions } from '../../../@types/Express.types.js';
+import { rangeCheck } from "../../../../util/rangeCheck.js";
+import { LoadType, UserPermissions } from '../../../../@types/Express.types.js';
 
 import type { Request, Response } from 'express';
-import type { Database } from '../../../lib/database/Maria.js';
-import type { SessionManager } from '../../../lib/SessionManager/SessionManager.js';
-import type { ApiConfig } from "../../../@types/Config.types.js";
-import type { ResultData } from "../../../@types/Express.types.js";
+import type { Database } from '../../../../lib/database/Maria.js';
+import type { SessionManager } from '../../../../lib/SessionManager/SessionManager.js';
+import type { ApiConfig } from "../../../../@types/Config.types.js";
+import type { ResultData } from "../../../../@types/Express.types.js";
 
 interface User{
     id?: number;
