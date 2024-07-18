@@ -108,24 +108,8 @@ export enum LoadType {
 
 /**
  * 不存在的外鍵(FK)類型  
- * CONTRACT_UUID    :   契作合約 uuid  
- * LAND_UUID        :   農地 uuid  
- * CROP_UUID        :   作物品種 uuid  
- * WEED_PEST_UUID   :   除草的農藥種類 uuid  
- * SPRAY_PEST_UUID  :   噴藥的農藥種類 uuid  
- * PRE_FERT_UUID    :   穗前肥的肥料種類 uuid  
- * POST_FERT_UUID   :   穗後肥的肥料種類 uuid  
+ * USER_ID      :       使用者 id
  */
 export enum MissingFK {
-    USER_ID = 99,
-
-    CONTRACT_UUID = 100,
-    FARMER_UUID = 101,
-    LAND_UUID = 102,
-    CROP_UUID = 103,
-
-    WEED_PEST_UUID = 110,
-    SPRAY_PEST_UUID = 111,
-    PRE_FERT_UUID = 112,
-    POST_FERT_UUID = 113
+    USER_ID = 99
 }
