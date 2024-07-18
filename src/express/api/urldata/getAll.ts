@@ -51,9 +51,6 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
      * 但因為經過 mariadb 模組的 Date() 轉換 變成 nodejs 的 Date (2023-09-08T16:00:00.000Z)
      * 需使用 formatDate() 格式化成 YYYY-MM-DD
      */
-    /**
-     * 類型我懶得處理所以都用 any 了 :D
-     */
 
     result = result.map((item: any) => {
         item.created_at = formatDate(item.created_at);
