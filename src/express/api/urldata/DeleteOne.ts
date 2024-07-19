@@ -6,13 +6,13 @@ export const method = 'DELETE';
 export const loginRequired = false;
 export const allowPermissions = [];
 
-import { LoadType } from '../../../../@types/Express.types.js';
+import { LoadType } from '../../../@types/Express.types.js';
 import { emptyDataConvert, emptyDataDateConvert } from '../../../util/validDataConverter.js';
 
 import type { Request, Response } from 'express';
-import type { Database } from '../../../../lib/database/Maria.js';
-import type { ApiConfig } from '../../../../@types/Config.types.js';
-import type { ResultData } from '../../../../@types/Express.types.js';
+import type { Database } from '../../../lib/database/Maria.js';
+import type { ApiConfig } from '../../../@types/Config.types.js';
+import type { ResultData } from '../../../@types/Express.types.js';
 
 
 export async function execute(req: Request, res: Response, config: ApiConfig, db: Database): Promise<ResultData> {
