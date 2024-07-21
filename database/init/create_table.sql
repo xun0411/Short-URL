@@ -37,7 +37,7 @@ CREATE TABLE `UrlData` (
   `password` VARCHAR(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `UrlData_User_FK` (`user_id`),
-  CONSTRAINT `UrlData_User_FK` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`)
+  CONSTRAINT `UrlData_User_FK` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
@@ -51,7 +51,7 @@ CREATE TABLE `Session` (
   `last_refresh` TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `Session_User_FK` (`user_id`),
-  CONSTRAINT `Session_User_FK` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`)
+  CONSTRAINT `Session_User_FK` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- Auto delete expored sessions, every 10 minutes check, not used for over 6 hours
