@@ -3,7 +3,7 @@
  */
 export const path = '/api/urldata/DeleteOne';
 export const method = 'DELETE';
-export const loginRequired = false;
+export const loginRequired = true;
 export const allowPermissions = [];
 
 import { LoadType } from '../../../@types/Express.types.js';
@@ -29,7 +29,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
     try {
         // 先檢查短網址是否存在該資料
-        const selectQuery = `SELECT COUNT(*) FROM ContractLand WHERE uuid = ${req.body.id};`;
+        const selectQuery = `SELECT COUNT(*) FROM urldata WHERE id = ${req.body.id};`;
         result = await db.query(selectQuery);
         const count = Number((result[0] as any)['COUNT(*)']);
 
@@ -43,7 +43,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
 
         // 該資料存在則嘗試刪除
-        const deleteQuery = `DELETE FROM ContractLand WHERE uuid = ${req.body.id};`;
+        const deleteQuery = `DELETE FROM urldata WHERE id = ${req.body.id};`;
         await db.query(deleteQuery);
     } catch (error) {
         console.log(path, error);
