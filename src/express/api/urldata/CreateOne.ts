@@ -6,8 +6,8 @@ export const method = 'POST';
 export const loginRequired = false;
 export const allowPermissions = [];
 
+
 import { rangeCheck } from '../../../util/rangeCheck.js';
-import { emptyDataConvert, emptyDataDateConvert } from '../../../util/validDataConverter.js';
 import { LoadType, MissingFK } from '../../../@types/Express.types.js';
 
 import type { Request, Response } from 'express';
@@ -19,19 +19,14 @@ import type { SessionManager } from '../../../lib/SessionManager/SessionManager.
 
 interface UrlData {
     id?: number;
-    user_id: number;                    //引用使用者的id    (INT)
+    user_id: number | null;             //引用使用者的id    (INT)
 
     short_url: string;                  //短網址            string(10)
     long_url: string;                   //原始網址          string(1000)
     //created_at: string;               //添加時間          Date
-    expire_date: number;                //過期時間(分)      (INT_UNSIGNED)
-    require_password: number;           //是否需要密碼      (Y/N) [0, 1]
+    expire_date: number | null;         //過期時間(分)      (INT_UNSIGNED)
     password: string | null;            //密碼              string(128)
 }
-/**
- * 確認的部分只有(Y/N) 不能為空
- * 所以不做 'EMPTY_DATA' 檢查
- */
 
 
 export async function execute(req: Request, res: Response, config: ApiConfig, db: Database, sessionManager: SessionManager): Promise<ResultData> {
@@ -39,13 +34,12 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
     // 檢查請求參數型別是否正確
     if (
-        (typeof (req.body.user_id) != 'number' || !rangeCheck.int(req.body.user_id)) ||
+        (req.body.user_id !== null && (typeof (req.body.user_id) != 'number' || !rangeCheck.int(req.body.user_id))) ||
 
         (typeof (req.body.short_url) != 'string' || !rangeCheck.string_length(req.body.short_url, 10)) ||
         (typeof (req.body.long_url) != 'string' || !rangeCheck.string_length(req.body.long_url, 1000)) ||
-        (typeof (req.body.expire_date) != 'number' || !rangeCheck.int_unsigned(req.body.expire_date)) ||
-        (typeof (req.body.require_password) != 'number' || ![0, 1].includes(req.body.require_password)) ||
-        (req.body.password !== 'EMPTY_DATA' && (typeof (req.body.password) != 'string' || !rangeCheck.string_length(req.body.password, 128)))
+        (req.body.expire_date !== null && (typeof (req.body.expire_date) != 'number' || !rangeCheck.int_unsigned(req.body.expire_date))) ||
+        (req.body.password !== null && (typeof (req.body.password) != 'string' || !rangeCheck.string_length(req.body.password, 128)))
     ) {
         return {
             loadType: LoadType.PARAMETER_ERROR,
@@ -54,36 +48,53 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
     }
 
     const newUrlData = {
-        user_id: req.body.user_id,
+        user_id: req.body.user_id === 'NULL' ? 'NULL' : req.body.user_id,
 
         short_url: req.body.short_url,
         long_url: req.body.long_url,
-        expire_date: req.body.expire_date,
-        require_password: req.body.require_password,
-        password: req.body.require_password === 1 ? sessionManager.auth.hashPassword(req.body.password) : `NULL`
+        expire_date: req.body.expire_date === 'NULL' ? 'NULL' : req.body.expire_date,
+        password: req.body.password === 'NULL' ? 'NULL' : sessionManager.auth.hashPassword(req.body.password)
     };
 
     try {
-        // 聯合查詢 檢查要引用的所有外鍵都存在
-        const combinedQuery = `
+        /**
+         * 檢查此網址是否已創建
+         */
+        const accountQuery = `SELECT COUNT(*) FROM UrlData WHERE long_url = "${req.body.long_url}";`;
+        result = await db.query(accountQuery);
+        const count = Number((result[0] as any)['COUNT(*)']);
+
+        if (count > 0) {
+            return {
+                loadType: LoadType.DATA_EXISTED,
+                data: []
+            };
+        }
+
+
+
+        if (newUrlData.user_id != 'NULL') {
+            // 聯合查詢 檢查要引用的外鍵存在
+            const combinedQuery = `
             SELECT
                 CASE
                     WHEN EXISTS (SELECT id FROM User WHERE id = ${newUrlData.user_id}) THEN ${newUrlData.user_id}
                 END AS 'user_id'
-        ;`;
-        console.log('combinedQuery', combinedQuery);
-        result = await db.query(combinedQuery);
-        console.log('result', result);
+            ;`;
+            console.log('combinedQuery', combinedQuery);
+            result = await db.query(combinedQuery);
+            console.log('result', result);
 
-        // 檢查每個 Table 回傳結果
-        const userResult = result.find((row: any) => row.user_id === newUrlData.user_id);
+            // 檢查每個 Table 回傳結果
+            const userResult = result.find((row: any) => row.user_id === newUrlData.user_id);
 
-        if (!userResult) {
-            return {
-                loadType: LoadType.FK_NOT_FOUND,
-                missingFK: MissingFK.USER_ID,
-                data: [{ user_id: newUrlData.user_id }]
-            };
+            if (!userResult) {
+                return {
+                    loadType: LoadType.FK_NOT_FOUND,
+                    missingFK: MissingFK.USER_ID,
+                    data: [{ user_id: newUrlData.user_id }]
+                };
+            }
         }
 
         //---------- END Table 檢查 ----------//
@@ -97,7 +108,6 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
             long_url,
             created_at,
             expire_date,
-            require_password,
             password
             )
             VALUES(
@@ -107,8 +117,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
                 "${newUrlData.long_url}",
                 Now(),
                 ${newUrlData.expire_date},
-                ${newUrlData.require_password},
-                "${newUrlData.password}"
+                ${newUrlData.password === 'NULL' ? 'NULL' : `"${newUrlData.password}"`}
             );
         `;
         console.log('query', query);
