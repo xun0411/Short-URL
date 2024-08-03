@@ -30,7 +30,6 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
                 urldata.long_url,
                 urldata.created_at,
                 urldata.expire_date,
-                urldata.require_password,
                 urldata.password
             FROM
                 urldata
