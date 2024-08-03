@@ -47,12 +47,7 @@ export enum UserPermissions {
 
 
 
-/**
- * EmptyData    :   空值佔位符 (表示該參數為 null)
- */
-export enum RequestParameterFormat {
-    EmptyData = 'EMPTY_DATA'
-}
+
 
 
 
