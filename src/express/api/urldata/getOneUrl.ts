@@ -27,7 +27,22 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         };
     }
 
-    try{
+    try {
+        /**
+         * 檢查此網址是否存在
+         */
+        const accountQuery = `SELECT COUNT(*) FROM UrlData WHERE short_url = "${req.query.short_url}";`;
+        result = await db.query(accountQuery);
+        const count = Number((result[0] as any)['COUNT(*)']);
+
+        if (count <= 0) {
+            return {
+                loadType: LoadType.DATA_NOT_FOUND,
+                data: []
+            };
+        }
+
+
         const query = `
             SELECT
                 urldata.id,
