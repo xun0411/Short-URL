@@ -28,12 +28,11 @@ CREATE TABLE `User` (
 
 CREATE TABLE `UrlData` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `user_id` INT NOT NULL,
+  `user_id` INT DEFAULT NULL,
   `short_url` VARCHAR(10) NOT NULL,
   `long_url` VARCHAR(1000) NOT NULL,
   `created_at` TIMESTAMP NOT NULL,
-  `expire_date` INT UNSIGNED NOT NULL,
-  `require_password` BOOL NOT NULL,
+  `expire_date` INT UNSIGNED DEFAULT NULL,
   `password` VARCHAR(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `UrlData_User_FK` (`user_id`),
