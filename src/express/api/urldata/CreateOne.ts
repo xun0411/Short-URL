@@ -7,9 +7,9 @@ export const loginRequired = false;
 export const allowPermissions = [];
 
 
-import { createHash } from 'crypto';
 import { rangeCheck } from '../../../util/rangeCheck.js';
 import { LoadType, MissingFK } from '../../../@types/Express.types.js';
+import { GenerateShortUrl } from '../../../lib/GenerateShortUrl/GenerateShortUrl.js';
 
 import type { Request, Response } from 'express';
 import type { Database } from '../../../lib/database/Maria.js';
@@ -29,9 +29,6 @@ interface UrlData {
     password: string | null;            //密碼              string(128)
 }
 
-function generateShortUrl(url: string): string {
-    return createHash('sha256').update(url).digest('hex').substring(0, 10);
-}
 
 
 export async function execute(req: Request, res: Response, config: ApiConfig, db: Database, sessionManager: SessionManager): Promise<ResultData> {
@@ -50,10 +47,30 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         };
     }
 
+
+    // 生成一個短網址
+    let isexist = false;
+    let shorturl = GenerateShortUrl.generateUrl(10);
+
+    /**
+     * 檢查重複短網址&生成新短網址
+     */
+    while(!isexist){
+        const checkQuery = `SELECT COUNT(*) FROM UrlData WHERE short_url = "${shorturl}";`;
+        result = await db.query(checkQuery);
+        const count = Number((result[0] as any)['COUNT(*)']);
+        if (count <= 0) {
+            isexist = true;
+        } else {
+            shorturl = GenerateShortUrl.generateUrl(10);
+        }
+    }
+
+
     const newUrlData = {
         user_id: req.body.user_id === 'NULL' ? 'NULL' : req.body.user_id,
 
-        short_url: generateShortUrl(req.body.long_url),
+        short_url: shorturl,
         long_url: req.body.long_url,
         expire_date: req.body.expire_date === 'NULL' ? 'NULL' : req.body.expire_date,
         password: req.body.password === 'NULL' ? 'NULL' : sessionManager.auth.hashPassword(req.body.password)
@@ -63,8 +80,8 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         /**
          * 檢查此網址是否已生成過
          */
-        const accountQuery = `SELECT COUNT(*) FROM UrlData WHERE long_url = "${req.body.long_url}";`;
-        result = await db.query(accountQuery);
+        const countQuery = `SELECT COUNT(*) FROM UrlData WHERE long_url = "${req.body.long_url}";`;
+        result = await db.query(countQuery);
         const count = Number((result[0] as any)['COUNT(*)']);
 
         if (count > 0) {
