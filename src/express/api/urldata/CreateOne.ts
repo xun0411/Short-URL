@@ -50,7 +50,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
     // 生成一個短網址
     let isexist = false;
-    let shorturl = GenerateShortUrl.generateUrl(10);
+    let shorturl = GenerateShortUrl.generateUrl(6);
 
     /**
      * 檢查重複短網址&生成新短網址
@@ -62,7 +62,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         if (count <= 0) {
             isexist = true;
         } else {
-            shorturl = GenerateShortUrl.generateUrl(10);
+            shorturl = GenerateShortUrl.generateUrl(6);
         }
     }
 
