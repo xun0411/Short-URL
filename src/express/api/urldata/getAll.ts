@@ -19,6 +19,22 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
     let result: object[] = [];
 
     try{
+
+        /**
+         * 檢查此資料表是否為空
+         */
+        const accountQuery = `SELECT COUNT(*) FROM UrlData;`;
+        result = await db.query(accountQuery);
+        const count = Number((result[0] as any)['COUNT(*)']);
+
+        if (count <= 0) {
+            return {
+                loadType: LoadType.DATA_NOT_FOUND,
+                data: []
+            };
+        }
+
+
         const query = `
             SELECT
                 urldata.id,
