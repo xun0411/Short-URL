@@ -7,6 +7,7 @@ export const loginRequired = false;
 export const allowPermissions = [];
 
 
+import { createHash } from 'crypto';
 import { rangeCheck } from '../../../util/rangeCheck.js';
 import { LoadType, MissingFK } from '../../../@types/Express.types.js';
 
@@ -28,6 +29,10 @@ interface UrlData {
     password: string | null;            //密碼              string(128)
 }
 
+function generateShortUrl(url: string): string {
+    return createHash('sha256').update(url).digest('hex').substring(0, 10);
+}
+
 
 export async function execute(req: Request, res: Response, config: ApiConfig, db: Database, sessionManager: SessionManager): Promise<ResultData> {
     let result: object[] = [];
@@ -35,8 +40,6 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
     // 檢查請求參數型別是否正確
     if (
         (req.body.user_id !== null && (typeof (req.body.user_id) != 'number' || !rangeCheck.int(req.body.user_id))) ||
-
-        (typeof (req.body.short_url) != 'string' || !rangeCheck.string_length(req.body.short_url, 10)) ||
         (typeof (req.body.long_url) != 'string' || !rangeCheck.string_length(req.body.long_url, 1000)) ||
         (req.body.expire_date !== null && (typeof (req.body.expire_date) != 'number' || !rangeCheck.int_unsigned(req.body.expire_date))) ||
         (req.body.password !== null && (typeof (req.body.password) != 'string' || !rangeCheck.string_length(req.body.password, 128)))
@@ -50,7 +53,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
     const newUrlData = {
         user_id: req.body.user_id === 'NULL' ? 'NULL' : req.body.user_id,
 
-        short_url: req.body.short_url,
+        short_url: generateShortUrl(req.body.long_url),
         long_url: req.body.long_url,
         expire_date: req.body.expire_date === 'NULL' ? 'NULL' : req.body.expire_date,
         password: req.body.password === 'NULL' ? 'NULL' : sessionManager.auth.hashPassword(req.body.password)
@@ -58,7 +61,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
     try {
         /**
-         * 檢查此網址是否已創建
+         * 檢查此網址是否已生成過
          */
         const accountQuery = `SELECT COUNT(*) FROM UrlData WHERE long_url = "${req.body.long_url}";`;
         result = await db.query(accountQuery);
