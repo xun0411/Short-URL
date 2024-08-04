@@ -31,8 +31,8 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         /**
          * 檢查此網址是否存在
          */
-        const accountQuery = `SELECT COUNT(*) FROM UrlData WHERE short_url = "${req.query.short_url}";`;
-        result = await db.query(accountQuery);
+        const countQuery = `SELECT COUNT(*) FROM UrlData WHERE short_url = "${req.query.short_url}";`;
+        result = await db.query(countQuery);
         const count = Number((result[0] as any)['COUNT(*)']);
 
         if (count <= 0) {

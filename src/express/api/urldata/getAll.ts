@@ -23,8 +23,8 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         /**
          * 檢查此資料表是否為空
          */
-        const accountQuery = `SELECT COUNT(*) FROM UrlData;`;
-        result = await db.query(accountQuery);
+        const countQuery = `SELECT COUNT(*) FROM UrlData;`;
+        result = await db.query(countQuery);
         const count = Number((result[0] as any)['COUNT(*)']);
 
         if (count <= 0) {
