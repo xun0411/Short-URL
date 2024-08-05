@@ -55,7 +55,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
     /**
      * 檢查重複短網址&生成新短網址
      */
-    while(!isexist){
+    while (!isexist) {
         const checkQuery = `SELECT COUNT(*) FROM UrlData WHERE short_url = "${shorturl}";`;
         result = await db.query(checkQuery);
         const count = Number((result[0] as any)['COUNT(*)']);
@@ -153,7 +153,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
     return {
         loadType: LoadType.SUCCEED,
-        data: []
+        data: [{ shorturl: config.url + shorturl }]
     };
 
 }
