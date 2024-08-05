@@ -22,8 +22,7 @@
  */
 const config = {
     apiConfig: {
-        url: 'http://127.0.0.1:4000',
-        host: '0.0.0.0',
+        host: '127.0.0.1',
         port: 4000,
         enableModule: {
             register: true,

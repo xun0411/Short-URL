@@ -80,14 +80,13 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
         /**
          * 檢查此網址是否已生成過
          */
-        const countQuery = `SELECT COUNT(*) FROM UrlData WHERE long_url = "${req.body.long_url}";`;
+        const countQuery = `SELECT short_url FROM UrlData WHERE long_url = "${req.body.long_url}";`;
         result = await db.query(countQuery);
-        const count = Number((result[0] as any)['COUNT(*)']);
 
-        if (count > 0) {
+        if (result.length !== 0) {
             return {
                 loadType: LoadType.DATA_EXISTED,
-                data: []
+                data: [{ short_url: (result[0] as any).short_url }]
             };
         }
 
@@ -153,7 +152,7 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
     return {
         loadType: LoadType.SUCCEED,
-        data: [{ shorturl: config.url + shorturl }]
+        data: [{ short_url: shorturl }]
     };
 
 }

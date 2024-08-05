@@ -16,7 +16,6 @@ export type Config = {
  * @param {boolean} enableModule.mailer - 是否啟用 mailer api
  */
 export type ApiConfig = {
-    url: string;
     host: string;
     port: number;
     enableModule: {
