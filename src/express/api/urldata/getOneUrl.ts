@@ -45,17 +45,16 @@ export async function execute(req: Request, res: Response, config: ApiConfig, db
 
         const query = `
             SELECT
-                urldata.id,
-                urldata.user_id,
-                urldata.short_url,
-                urldata.long_url,
-                urldata.created_at,
-                urldata.expire_date,
-                urldata.password
+                user_id,
+                short_url,
+                long_url,
+                created_at,
+                expire_date,
+                password
             FROM
-                urldata
+                UrlData
             WHERE
-                urldata.short_url = "${req.query.short_url}";
+                short_url = "${req.query.short_url}";
         `;
         result = await db.query(query);
     } catch (error) {
