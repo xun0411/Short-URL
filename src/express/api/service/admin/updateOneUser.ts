@@ -8,7 +8,7 @@ export const method = 'PUT';
 export const loginRequired = true;
 export const allowPermissions = [UserPermissions.Admin];
 
-import { emptyDataConvert } from "../../../../util/validDataConverter.js";
+
 import { rangeCheck } from "../../../../util/rangeCheck.js";
 import { LoadType, UserPermissions } from "../../../../@types/Express.types.js";
 
