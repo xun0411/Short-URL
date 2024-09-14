@@ -1,6 +1,6 @@
 # Short-URL-WEB
 
-version: `0.4.1` 
+version: `0.1.0`
 
 縮短網址服務---一個基於 TypeScript、Express 和 MariaDB 的簡單縮短網址服務。用戶可以將長網址縮短為固定長度的短網址，並使用生成的短網址檢索原始網址。
 ## 功能
